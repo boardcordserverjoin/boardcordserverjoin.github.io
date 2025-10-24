@@ -1,53 +1,58 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Popup Ad</title>
-<style>
-    body{
-        background-color: black;
-    }
-  /* Popup container */
-  #popupAd {
-    position: fixed;
-    bottom: 20px;
-    left: 20px;
-    width: 250px;
-    background-color: #fff;
-    border: 2px solid #333;
-    border-radius: 8px;
-    padding: 15px;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-    font-family: Arial, sans-serif;
-  }
-
-  #popupAd p {
-    margin: 0 0 10px 0;
-    font-size: 14px;
-  }
-
-  #popupAd button {
-    padding: 8px 12px;
-    border: none;
-    background-color: #007BFF;
-    color: #fff;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 14px;
-  }
-
-  #popupAd button:hover {
-    background-color: #0056b3;
-  }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Discord Server Hub</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <!-- HEADER -->
+  <header>
+    <h1>Discord Server Hub</h1>
+    <p>Discover and promote your Discord servers!</p>
+  </header>
 
-<div id="popupAd">
-  <p>Join our awesome community today!</p>
-  <button onclick="window.open('https://discord.gg/BV5zJCY2', '_blank')">Join</button>
-</div>
+  <!-- ADD SERVER BUTTON -->
+  <section style="text-align:center; margin: 40px 0;">
+    <button class="boton-elegante" id="openModalBtn">Add Your Server</button>
+  </section>
 
+  <!-- MODAL -->
+  <div id="serverModal" class="modal">
+    <div class="modal-content">
+      <span class="close-btn">&times;</span>
+      <h2>Add Your Discord Server</h2>
+
+      <!-- Metallic Floating Inputs -->
+      <div class="input-group">
+        <input type="text" id="serverName" class="input" required>
+        <label class="user-label" for="serverName">Server Name</label>
+      </div>
+      <div class="input-group">
+        <input type="text" id="serverIcon" class="input" required>
+        <label class="user-label" for="serverIcon">Icon URL</label>
+      </div>
+      <div class="input-group">
+        <input type="text" id="serverDesc" class="input" required>
+        <label class="user-label" for="serverDesc">Description</label>
+      </div>
+      <div class="input-group">
+        <input type="text" id="serverInvite" class="input" required>
+        <label class="user-label" for="serverInvite">Invite Link</label>
+      </div>
+
+      <!-- Hidden Importance -->
+      <input type="hidden" id="serverImportance" value="1">
+
+      <button class="boton-elegante" id="addServerBtn">Submit</button>
+    </div>
+  </div>
+
+  <!-- SERVER LIST -->
+  <section class="server-list" id="serverList"></section>
+
+  <!-- MODULAR FIREBASE APP -->
+  <script type="module" src="app.js"></script>
 </body>
 </html>
