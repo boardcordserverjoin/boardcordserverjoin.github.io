@@ -11,6 +11,16 @@
   <header>
     <h1>Discord Server Hub</h1>
     <p>Discover and promote your Discord servers!</p>
+
+    <!-- Search Bar -->
+    <div class="navbar-container">
+      <div class="search-bar">
+        <svg class="searchIcon" viewBox="0 0 24 24">
+          <path d="M21 21l-4.35-4.35m2.23-5.07a7.3 7.3 0 11-14.6 0 7.3 7.3 0 0114.6 0z"/>
+        </svg>
+        <input id="searchInput" class="input-search" type="text" placeholder="Search servers...">
+      </div>
+    </div>
   </header>
 
   <!-- ADD SERVER BUTTON -->
@@ -49,8 +59,28 @@
     </div>
   </div>
 
-  <!-- SERVER LIST -->
-  <section class="server-list" id="serverList"></section>
+<!-- LOADER -->
+<div id="loaderContainer">
+  <div id="wifi-loader">
+    <svg class="circle-outer" viewBox="0 0 86 86">
+      <circle class="back" cx="43" cy="43" r="40"></circle>
+      <circle class="front" cx="43" cy="43" r="40"></circle>
+    </svg>
+    <svg class="circle-middle" viewBox="0 0 60 60">
+      <circle class="back" cx="30" cy="30" r="27"></circle>
+      <circle class="front" cx="30" cy="30" r="27"></circle>
+    </svg>
+    <svg class="circle-inner" viewBox="0 0 34 34">
+      <circle class="back" cx="17" cy="17" r="14"></circle>
+      <circle class="front" cx="17" cy="17" r="14"></circle>
+    </svg>
+    <div class="text" data-text="loading"></div>
+  </div>
+</div>
+
+<!-- SERVER LIST -->
+<section class="server-list" id="serverList"></section>
+
 
   <!-- MODULAR FIREBASE APP -->
   <script type="module" src="app.js"></script>

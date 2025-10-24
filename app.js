@@ -1,6 +1,8 @@
+// ======================
+// FIREBASE SETUP
+// ======================
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-import { getFirestore, collection, addDoc, query, orderBy, onSnapshot } 
-  from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBZw9d3n-FWx4qpKiZFsLdzI3iOYwTtBTA",
@@ -11,65 +13,127 @@ const firebaseConfig = {
   appId: "1:495656585285:web:ea9ce2497566216d50fb2c"
 };
 
+// Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// Modal logic
-const modal = document.getElementById("serverModal");
-const openBtn = document.getElementById("openModalBtn");
+// ======================
+// ELEMENT REFERENCES
+// ======================
+const openModalBtn = document.getElementById("openModalBtn");
+const serverModal = document.getElementById("serverModal");
 const closeBtn = document.querySelector(".close-btn");
+const addServerBtn = document.getElementById("addServerBtn");
+const serverList = document.getElementById("serverList");
+const loader = document.getElementById("loaderContainer");
+const searchInput = document.getElementById("searchInput");
 
-openBtn.onclick = () => modal.style.display = "block";
-closeBtn.onclick = () => modal.style.display = "none";
-window.onclick = e => { if(e.target === modal) modal.style.display = "none"; };
+// ======================
+// MODAL HANDLING
+// ======================
+openModalBtn.addEventListener("click", () => {
+  serverModal.style.display = "block";
+});
 
-// Elements
-const serverListEl = document.getElementById('serverList');
-const addBtn = document.getElementById('addServerBtn');
+closeBtn.addEventListener("click", () => {
+  serverModal.style.display = "none";
+});
 
-// Add server
-addBtn.addEventListener('click', async () => {
-  const name = document.getElementById('serverName').value;
-  const icon = document.getElementById('serverIcon').value;
-  const desc = document.getElementById('serverDesc').value;
-  const invite = document.getElementById('serverInvite').value;
-  const importance = parseInt(document.getElementById('serverImportance').value) || 1;
+window.addEventListener("click", (e) => {
+  if (e.target === serverModal) serverModal.style.display = "none";
+});
 
-  if(name && icon && desc && invite){
+// ======================
+// ADD SERVER
+// ======================
+addServerBtn.addEventListener("click", async () => {
+  const name = document.getElementById("serverName").value.trim();
+  const icon = document.getElementById("serverIcon").value.trim();
+  const desc = document.getElementById("serverDesc").value.trim();
+  const invite = document.getElementById("serverInvite").value.trim();
+  const importance = parseInt(document.getElementById("serverImportance").value) || 1;
+
+  if (!name || !icon || !desc || !invite) return alert("Please fill all fields.");
+
+  loader.style.display = "flex"; // show loader
+
+  try {
     await addDoc(collection(db, "servers"), {
-      name, icon, desc, invite, importance, timestamp: Date.now()
+      name,
+      icon,
+      desc: desc,
+      invite,
+      importance
     });
 
-    // Clear inputs
-    document.getElementById('serverName').value = '';
-    document.getElementById('serverIcon').value = '';
-    document.getElementById('serverDesc').value = '';
-    document.getElementById('serverInvite').value = '';
-    document.getElementById('serverImportance').value = '1';
-
-    modal.style.display = "none";
+    serverModal.style.display = "none";
+    loadServers(); // refresh list
+  } catch (err) {
+    console.error("Error adding server:", err);
+    alert("Error adding server.");
+  } finally {
+    loader.style.display = "none"; // hide loader
   }
 });
 
-// Real-time listener, sorted by importance then timestamp
-onSnapshot(collection(db, "servers"), snapshot => {
-  let servers = [];
-  snapshot.forEach(doc => servers.push(doc.data()));
+// ======================
+// LOAD SERVERS
+// ======================
+async function loadServers() {
+  loader.style.display = "flex";
+  serverList.innerHTML = "";
 
-  // Sort by importance descending, then timestamp descending
-  servers.sort((a,b) => b.importance - a.importance || b.timestamp - a.timestamp);
+  try {
+    const querySnapshot = await getDocs(collection(db, "servers"));
+    let servers = [];
 
-  serverListEl.innerHTML = '';
-  servers.forEach(data => {
-    serverListEl.innerHTML += `
-      <div class="server-card">
-        <img src="${data.icon}" alt="Server Icon">
-        <h3>${data.name}</h3>
-        <p>${data.desc}</p>
-        <a href="${data.invite}" target="_blank">
-          <button class="boton-elegante">Join Server</button>
-        </a>
-      </div>
+    querySnapshot.forEach(doc => {
+      servers.push({ id: doc.id, ...doc.data() });
+    });
+
+    // Sort by importance (higher first)
+    servers.sort((a, b) => (b.importance || 1) - (a.importance || 1));
+
+    renderServers(servers);
+  } catch (err) {
+    console.error("Error loading servers:", err);
+  } finally {
+    loader.style.display = "none";
+  }
+}
+
+// ======================
+// RENDER SERVERS
+// ======================
+function renderServers(servers) {
+  serverList.innerHTML = "";
+  servers.forEach(s => {
+    const card = document.createElement("div");
+    card.classList.add("server-card");
+    card.innerHTML = `
+      <img src="${s.icon}" alt="${s.name}">
+      <h3>${s.name}</h3>
+      <p>${s.desc}</p>
+      <a href="${s.invite}" target="_blank" class="boton-elegante">Join</a>
     `;
+    serverList.appendChild(card);
+  });
+}
+
+// ======================
+// SEARCH FUNCTIONALITY
+// ======================
+searchInput.addEventListener("input", () => {
+  const query = searchInput.value.toLowerCase();
+  const cards = Array.from(document.querySelectorAll(".server-card"));
+
+  cards.forEach(card => {
+    const name = card.querySelector("h3").textContent.toLowerCase();
+    card.style.display = name.includes(query) ? "flex" : "none";
   });
 });
+
+// ======================
+// INITIAL LOAD
+// ======================
+loadServers();
